@@ -93,12 +93,10 @@ function DECFSZ() {
 function GOTO() {
   # Jump to address k
   local code=$1
-  local hex=`sed 's/^.\{3\}//' <<< $code`
+  local k=${code:3:11}
+  k=`bin2hex $k`
 
-  # binary to hex
-  hex=`printf '%x\n' "$((2#$hex))"`
-
-  echo "GOTO $hex"
+  echo "GOTO 0x$k"
 }
 
 function MOVLW() {
