@@ -34,6 +34,18 @@ function bin2hex() {
 
 }
 
+function BCF() {
+  # Clear bit b of f
+  local code=$1
+  local b=${code:4:3}
+  local f=${code:7:7}
+  b=`bin2hex $b`
+  f=`bin2hex $f`
+  f=`SRName $f`
+
+  echo "BCF $f,0x$b"
+}
+
 function BSF() {
   # Set bit b of f
   local code=$1
@@ -164,8 +176,7 @@ function bin2op() {
      echo "INCFSZ f,d"
      ;;
    0100*)
-     # Clear bit b of f
-     echo "BCF f,b"
+     BCF $code
      ;;
    0101*)
      BSF $code
