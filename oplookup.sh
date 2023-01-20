@@ -34,6 +34,15 @@ function bin2hex() {
 
 }
 
+function ADDLW() {
+  # w <- k+W
+  local code=$1
+  local k=${code:6:8}
+  k=`bin2hex $k`
+
+  echo "ADDLW 0x$k"
+}
+
 function BCF() {
   # Clear bit b of f
   local code=$1
@@ -254,8 +263,7 @@ function bin2op() {
      echo "SUBLW k"
      ;;
    11111*)
-     # w <- k+W
-     echo "ADDLW k"
+     ADDLW $code
      ;;
    *)
      echo "NOT Implemented $code" 
