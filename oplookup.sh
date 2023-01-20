@@ -89,6 +89,15 @@ function MOVLW() {
   echo "MOVLW 0x$k"
 }
 
+function MOVWF() {
+  # f <- W
+  local code=$1
+  local f=${code:7:7}
+  f=`bin2hex $f`
+
+  echo "MOVWF 0x$f"
+}
+
 function bin2op() {
   code="$1"
 
@@ -121,8 +130,7 @@ function bin2op() {
      echo "CLRWDT"
      ;;
    0000001*)
-     # f <- W
-     echo "MOVWF f"
+     MOVWF $code
      ;;
    000001*)
      CLRF $code
