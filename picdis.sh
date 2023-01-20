@@ -31,7 +31,7 @@ function dataType() {
 
   case $dType in
   00)
-    echo "Program data"
+    #echo "Program data"
     ;;
   01)
     echo "EOF"
@@ -53,7 +53,7 @@ function parseOpCodes() {
   # convert to binary
   OPCODES=`echo "ibase=16; obase=2 ; $opCodes"  |bc  | xargs printf '%016d\n'`
 
-  echo -n "| $OPCODES |"
+  echo -n "$OPCODES |"
   bin2op $OPCODES
 }
 
@@ -84,6 +84,152 @@ function validateChecksum() {
 
 }
 
+function parseFuses() {
+  local fuses=$1
+
+  # Reorder address
+  fuses=${fuses:2:2}${fuses:0:2}
+
+  # convert to binary
+  fuses=`echo "ibase=16; obase=2 ; $fuses"  |bc  | xargs printf '%016d\n'`
+
+  echo -n "$fuses |Fuses: "
+
+  echo -n "FOSC="
+  case ${fuses:13:3} in
+    000)
+      echo -n "LP"
+      ;;
+    001)
+      echo -n "XP"
+      ;;
+    010)
+      echo -n "HS"
+      ;;
+    011)
+      echo -n "EC"
+      ;;
+    100)
+      echo -n "INTOSIO"
+      ;;
+    101)
+      echo -n "INTOSC"
+      ;;
+    110)
+      echo -n "RCIO"
+      ;;
+    111)
+      echo -n "RC"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " WDTE="
+  case ${fuses:12:1} in
+    0)
+      echo -n "Disabled"
+      ;;
+    1)
+      echo -n "Enabled"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " PWRTE="
+  case ${fuses:11:1} in
+    0)
+      echo -n "Enabled"
+      ;;
+    1)
+      echo -n "Disabled"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " MCLRE="
+  case ${fuses:10:1} in
+    0)
+      echo -n "RA3/MCLR-is-IO"
+      ;;
+    1)
+      echo -n "RA3/MCLR-is-MCLR"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " CP="
+  case ${fuses:9:1} in
+    0)
+      echo -n "Enabled"
+      ;;
+    1)
+      echo -n "Disabled"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " CPD="
+  case ${fuses:8:1} in
+    0)
+      echo -n "Enabled"
+      ;;
+    1)
+      echo -n "Disabled"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " BODEN="
+  case ${fuses:6:2} in
+    00)
+      echo -n "Disabled"
+      ;;
+    01)
+      echo -n "SBODEN"
+      ;;
+    10)
+      echo -n "Enabled,Disabled-in-sleep"
+      ;;
+    11)
+      echo -n "Enabled"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " IESO="
+  case ${fuses:5:1} in
+    0)
+      echo -n "Disabled"
+      ;;
+    1)
+      echo -n "Enabled"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo -n " FCMEN="
+  case ${fuses:4:1} in
+    0)
+      echo -n "Disabled"
+      ;;
+    1)
+      echo -n "Enabled"
+      ;;
+    *)
+      ;;
+  esac
+
+  echo
+}
+
 while read -r line
 do
   if ! [[ $line =~ ^: ]]; then
@@ -109,9 +255,21 @@ do
     hexAddress=`printf '%4x\n' $address`
     (( address++ ))
     lineAddress=`printf '%4d\n' $address`
-    echo -n "| line: $lineAddress | address: $hexAddress |"
-    parseOpCodes ${line:0:4}
-    line=`sed 's/^.\{4\}//' <<< $line`
+    echo -n "| line: $lineAddress | address: $hexAddress | "
+
+    if [[ $lineAddress -gt 2048 ]]
+    then
+      if [[ $lineAddress -eq 8200 ]]
+      then
+        parseFuses ${line:0:4} 
+      elif [[ $lineAddress -gt 8192 ]] && [[ $line -lt 8196 ]]
+      then
+        echo "ID Locations"
+      fi
+    else
+      parseOpCodes ${line:0:4}
+      line=`sed 's/^.\{4\}//' <<< $line`
+    fi
   done
 
 done < blinkenlights.X.production.hex
