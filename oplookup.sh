@@ -80,6 +80,14 @@ function GOTO() {
   echo "GOTO $hex"
 }
 
+function MOVLW() {
+  # W <- k
+  local code=$1
+  local k=${code:6:8}
+  k=`bin2hex $k`
+
+  echo "MOVLW 0x$k"
+}
 
 function bin2op() {
   code="$1"
@@ -197,8 +205,7 @@ function bin2op() {
      GOTO $code
      ;;
    1100*)
-     # W <- k
-     echo "MOVLW k"
+     MOVLW $code
      ;;
    1101*)
      # W <- k, then return from subroutine
