@@ -22,7 +22,7 @@ function SRName() {
     ;;
   *)
     # TODO
-    echo -n "$address"
+    echo -n "0x$address"
     ;;
   esac
 
