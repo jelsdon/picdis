@@ -48,6 +48,15 @@ function BSF() {
 
 }
 
+function CLRF() {
+  # dest <- 0
+  local code=$1
+  local f=${code:7:7}
+   f=`bin2hex $f`
+   f=`SRName $f`
+   echo "CLRF $f"
+}
+
 function GOTO() {
   # Jump to address k
   local code=$1
@@ -96,8 +105,7 @@ function bin2op() {
      echo "MOVWF f"
      ;;
    000001*)
-     # dest <- 0
-     echo "CLR f,d"
+     CLRF $code
      ;;
    000010*)
      # dest <- f-W (dest <- f + ~W+1)
