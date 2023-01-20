@@ -69,6 +69,27 @@ function CLRF() {
    echo "CLRF $f"
 }
 
+function DECFSZ() {
+  # dest <- f-1 then skip if zero
+  local code=$1
+  local f=${code:7:7}
+  local d=${code:6:1}
+  f=`bin2hex $f`
+
+  case $d in
+    0)
+      d='W'
+      ;;
+    1)
+      d='f'
+      ;;
+    *)
+      ;;
+  esac
+
+  echo "DECFSZ 0x$f,$d"
+}
+
 function GOTO() {
   # Jump to address k
   local code=$1
@@ -172,8 +193,7 @@ function bin2op() {
      echo "INCF f,d"
      ;;
    001011*)
-     # dest <- f-1 then skip if zero
-     echo "DECFSZ f,d"
+     DECFSZ $code
      ;;
    001100*)
      # dest <- CARRY <<7 | f>>1, rotate right through carry
